@@ -33,7 +33,9 @@ public class RiftEntity extends Marker implements GeoEntity {
     public static final int BURST = 40;
     public static final int FADE = 240;
     public static final int END = 300;
-    private static final double R = 26.0;
+    /** Crack hangs this many blocks above the entity, faces down, radius R (matches rift.geo.json). */
+    public static final double H = 40.0;
+    private static final double R = 34.0;
 
     public static final Set<RiftEntity> LIVE = ConcurrentHashMap.newKeySet();
 
@@ -46,7 +48,7 @@ public class RiftEntity extends Marker implements GeoEntity {
     private int life = 0;
 
     public net.minecraft.world.phys.AABB getBoundingBoxForCulling() {
-        return getBoundingBox().inflate(30.0);
+        return getBoundingBox().inflate(60.0);
     }
 
     /** Vanilla Marker throws "Markers should never be sent"; we want clients to see this entity. */
@@ -104,7 +106,7 @@ public class RiftEntity extends Marker implements GeoEntity {
     }
 
     private void sound(ServerLevel sl, SoundEvent s, float v, float p) {
-        sl.playSound(null, BlockPos.containing(getX(), getY() + 5, getZ()), s, SoundSource.AMBIENT, v, p);
+        sl.playSound(null, BlockPos.containing(getX(), getY() + H, getZ()), s, SoundSource.AMBIENT, v, p);
     }
 
     private void serverTick(ServerLevel sl) {
@@ -117,15 +119,15 @@ public class RiftEntity extends Marker implements GeoEntity {
             sound(sl, SoundEvents.GLASS_BREAK, 4.0f, 0.5f);
             sound(sl, SoundEvents.LIGHTNING_BOLT_THUNDER, 4.0f, 0.6f);
             sound(sl, SoundEvents.GENERIC_EXPLODE.value(), 3.0f, 0.5f);
-            sl.sendParticles(ParticleTypes.EXPLOSION_EMITTER, gx, gy + 5, gz, 1, 0, 0, 0, 0);
+            sl.sendParticles(ParticleTypes.EXPLOSION_EMITTER, gx, gy + H, gz, 1, 0, 0, 0, 0);
         }
 
         // charge: red dust sucked into the orb
         if (life < BURST) {
             for (int i = 0; i < 12; i++) {
                 double[] d = randDir();
-                double dist = 7.0 * (1.0 - life / (double) BURST) + 1.0;
-                dust(sl, 0xFF1A1A, 1.0f, gx + d[0] * dist, gy + 5 + d[1] * dist, gz + d[2] * dist);
+                double dist = 14.0 * (1.0 - life / (double) BURST) + 1.0;
+                dust(sl, 0xFF1A1A, 1.0f, gx + d[0] * dist, gy + H + d[1] * dist, gz + d[2] * dist);
             }
         }
 
@@ -143,10 +145,10 @@ public class RiftEntity extends Marker implements GeoEntity {
         if (life >= BURST + 10 && life % 2 == 0 && !fading) {
             for (int k = 0; k < 3; k++) {
                 double theta = rnd.nextDouble() * Math.PI * 2;
-                double elev = 0.3 + rnd.nextDouble() * 1.1;
-                double x = gx + R * Math.cos(elev) * Math.cos(theta);
-                double y = gy + R * Math.sin(elev);
-                double z = gz + R * Math.cos(elev) * Math.sin(theta);
+                double rad = 6.0 + rnd.nextDouble() * (R - 8.0);
+                double x = gx + rad * Math.cos(theta);
+                double y = gy + H;
+                double z = gz + rad * Math.sin(theta);
                 var block = rnd.nextBoolean() ? Blocks.CRYING_OBSIDIAN : Blocks.OBSIDIAN;
                 sl.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, block.defaultBlockState()),
                     x, y, z, 3, 0.5, 0.2, 0.5, 0.0);
