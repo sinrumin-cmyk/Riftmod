@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "rift",
+  "version": "${version}",
+  "name": "Rift",
+  "description": "Sky and ground rifts.",
+  "authors": [],
+  "environment": "*",
+  "entrypoints": {
+    "main": ["rift.RiftMod"],
+    "client": ["rift.RiftClient"]
+  },
+  "mixins": [
+    { "config": "rift.mixins.json", "environment": "client" }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*",
+    "geckolib": ">=5.5.7"
+  }
+}
