@@ -41,9 +41,12 @@ public class RiftEntity extends Marker implements GeoEntity {
     private final Random rnd = new Random();
     private int life = 0;
 
+    public net.minecraft.world.phys.AABB getBoundingBoxForCulling() {
+        return getBoundingBox().inflate(30.0);
+    }
+
     public RiftEntity(EntityType<?> type, Level level) {
         super(type, level);
-        this.noCulling = true;
     }
 
     @Override
